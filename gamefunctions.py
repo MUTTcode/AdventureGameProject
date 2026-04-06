@@ -17,11 +17,18 @@ and returns the remaining balance and
 amount of items they have purchased.
 
 new_random_monster = returns a randomly selected monster with 
-randomized stats."""
+randomized stats.
 
+
+"""
 #gamefunctions.py
 #Autumn Harris
-#3/24/2026
+#4/4/2026
+
+import random
+
+#IS GAME RUNNING?
+running = True
 
 #PRINT WELCOME FUNC
 def print_welcome(name, width):
@@ -46,6 +53,7 @@ def print_welcome(name, width):
     
     print(center_print_msg)
     return
+
 #PRINT SHOP MENU FUNC
 def print_shop_menu(item1Name, item1Price, item2Name, item2Price):
     """
@@ -79,6 +87,7 @@ def print_shop_menu(item1Name, item1Price, item2Name, item2Price):
     print(f"| {item2Name:<12} {price_2:>8}|")
     print("\\----------------------/")
     return
+
 #PURCHASE ITEM FUNC
 def purchase_item(itemPrice, startingMoney, quantityToPurchase=1):
     """
@@ -106,7 +115,6 @@ def purchase_item(itemPrice, startingMoney, quantityToPurchase=1):
         >>> print(money_transaction) 
         [500, 5]
     """
-    
     #function variables
     max_budget = startingMoney // itemPrice
     num_purchased = min(quantityToPurchase, max_budget)
@@ -114,7 +122,6 @@ def purchase_item(itemPrice, startingMoney, quantityToPurchase=1):
 
     #function output list to be returned
     total_leftover_total_purchase = [leftover_money, num_purchased]
-
     return total_leftover_total_purchase
 
 #IMPORT RANDOM PY MODULE
@@ -173,19 +180,167 @@ def new_random_monster():
     #randomize monster selection
     my_monster_tuple = (my_monster_bandit, my_monster_mutant, my_monster_packdogs)
     random_my_monster = random.choice(my_monster_tuple)
-
     
+
     return random_my_monster
 
-#TEST FUNCTIONS
 
-if __name__ == "__main__":
-    print(new_random_monster())
 
-    print(purchase_item(100, 1000, 5))
+#USER CHAR STATS VARIABLES
+user_char_health = 15
+user_char_money = float(100.00)
+user_char_power = 4
 
-    print(print_shop_menu("Knife", 17.69, "Backpack", 27.15))
+#MONSTER STATS VARIABLES
+monster_name = "default"
+monster_desc = "default"
+monster_health = 1
+monster_power = 1
+monster_money = 1
 
-    print(print_welcome("Autumn", 30))
+def town_select_1(): #SELECT 1 = monsterFUNCT
+    """
+    When function is run Player fights 1 of 3 randomly
+    selected monsters and allows Player to fight
+    or flee based on input.
+    Parameter: None
+    Returns: None
+    """
+
+    print("You gather your items, strolling past the guarded gates you leave the shantytown.")
+    print("Looking at the bleak, desolate landscape ahead of you, your muscles tense.")
+    print("You ready your weapon. You can sense danger nearby.")
+
+    global user_char_health
+    global user_char_money
+    global user_char_power
+
+    global monster_name
+    global monster_desc
+    global monster_health
+    global monster_power
+    global monster_money
+
+    random_monster = new_random_monster()
+
+    monster_name = random_monster['name']
+    monster_desc = random_monster['description']
+    monster_health = random_monster['health']
+    monster_power = random_monster['power']
+    monster_money = random_monster['money']
+
+    def displayFightStatistics():
+        """
+        Displays monster and player health and power throughout fight.
+        Parameters: None
+        Returns: None
+        """
+
+        print(f"Player\nHealth: {user_char_health}\nAttack: {user_char_power}")
+        print(f"{monster_name}\nHealth: {monster_health}\nAttack: {monster_power}")
+
     
+    
+    print(monster_name)
+    print(monster_desc)
+
+    print(f"{monster_name} attacks for {monster_power} points of damage!")
+    print(f"Player attacks {monster_name} for {user_char_power} points of damage!")
+    
+    
+    monster_health = monster_health - user_char_power
+    user_char_health = user_char_health - monster_power
+    
+    displayFightStatistics()
+
+    while user_char_health > 0 and monster_health > 0:
+        user_action = input("Select:\n1. Fight\n2. Flee\n")
+        
+        #getUserFightAction(user_char_stats, monster_stats)
+
+        if user_action == "1":
+            monster_health = monster_health - user_char_power
+            user_char_health = user_char_health - monster_power
+            displayFightStatistics()
+
+        elif user_action == "2":
+            print("You ran away")
+            break # exits the while loop
+
+        else:
+            print("Invalid selection!") # prints an error but stays in the loop
+
+    # Handle the cases that cause the loop to end
+    if user_char_health <= 0:
+        print("Your character passed out")
+    
+    else:
+        user_char_money = user_char_money + monster_money
+        
+    return
+
+def town_select_2(): #SELECT 2 = restFUNCT
+    """
+    When function runs takes $5 of Player money
+    and restores 3 Player health.
+    Parameters: None
+    Returns: None
+    """
+    print("You enter the hostel. The smell of body odor, machine oil, and cigarettes is overwhelming.") 
+    print("You pay $5 and find a quiet corner of straw and blankets to hunker down.")
+    print("Your eyelids are heavy and seem to close on their own.")
+    print("You rest for the night, your body stiff and aching.")
+    global user_char_health
+    global user_char_money
+
+    user_char_health = user_char_health + int(3)
+    user_char_money = user_char_money - float(5.00)
+
+    return
+
+def town_select_3(): #SELECT 3 = quitFUNCT
+    """
+    Prints quit of main game loop.
+    
+    Parameters: None
+    Returns: None
+    """
+    print("Quitting program...")
+    print(f"Goodbye!")
+
+    global running
+    running = False
+    quitgame = running
+
+    return quitgame
+
+
+def town_menu(): #Town menu function
+    """
+    Main game menu, allows player input to select run
+    functions
+    Parameters: None
+    Returns: None
+    
+    """
+    print("You are in town.")
+    print(f"Current health: {user_char_health}, Current money: ${user_char_money:.2f}")
+    print("What would you like to do?\n")
+    print("1) Leave town (Fight Monster)\n2) Sleep (Restore HP for $5)\n3) Quit")
+    
+    town_select = int(input())
+    if town_select == 1:
+        town_select_1()
+    elif town_select == 2:
+        town_select_2()
+    elif town_select == 3:
+        town_select_3()
+    else:
+        print("That is not a valid selection!")
+
+    return
+
+#if __name__ == "__main__":
+
+
 
